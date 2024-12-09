@@ -1,37 +1,36 @@
-# Please choose from the below set of Docker commands to complete your Dockerfile:
+# Stage 1: Build stage
+FROM golang:1.18 AS builder
 
-# COPY
-# RUN
-# ADD
-# EXPOSE
-# FROM
-# CMD
-# PUSH
-# PULL
-# WORKDIR
-
-
-FROM golang:1.18 as builder
-
+# Set the working directory
 WORKDIR /app
 
+# Copy the Go source code to the build container
 COPY main.go .
 
+# Initialize the Go module and tidy dependencies
 RUN go mod init guestbook
 RUN go mod tidy
 
+# Compile the Go program
 RUN go build -o main main.go
 
+# Stage 2: Production stage
 FROM ubuntu:18.04
 
-<Please fill in the required Docker command> --from=builder /app/main /app/guestbook
+# Copy the compiled binary from the builder stage to the production container
+COPY --from=builder /app/main /app/guestbook
 
-<Please fill in the required Docker command> public/index.html /app/public/index.html
-<Please fill in the required Docker command> public/script.js /app/public/script.js
-<Please fill in the required Docker command> public/style.css /app/public/style.css
-<Please fill in the required Docker command> public/jquery.min.js /app/public/jquery.min.js
+# Copy static files to the container
+COPY public/index.html /app/public/index.html
+COPY public/script.js /app/public/script.js
+COPY public/style.css /app/public/style.css
+COPY public/jquery.min.js /app/public/jquery.min.js
 
+# Set the working directory for the production container
 WORKDIR /app
 
+# Expose the application port
+EXPOSE 3000
+
+# Define the command to run the application
 CMD ["./guestbook"]
-<Please fill in the required Docker command> 3000
